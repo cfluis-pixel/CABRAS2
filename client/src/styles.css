@@ -340,7 +340,7 @@ textarea:focus {
     z-index: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     pointer-events: none;
     user-select: none;
     overflow: hidden;
@@ -369,10 +369,12 @@ textarea:focus {
 
   .ticker-unit {
     font-family: var(--display);
-    font-size: clamp(12rem, 17vw, 19rem);
+    /* tamaño en vh: cada fila llena un tercio de la altura de la pantalla.
+       Las mayúsculas ocupan ~72% del em, de ahí el line-height comprimido */
+    font-size: 45vh;
     font-weight: 700;
     text-transform: uppercase;
-    line-height: 0.92;
+    line-height: 0.73;
     letter-spacing: 2px;
     white-space: nowrap;
     padding-right: 5rem;
