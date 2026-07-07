@@ -4,9 +4,9 @@ const REEL_LEN = 30;
 const TARGET_IDX = REEL_LEN;
 const MOBILE_MQ = '(max-width: 640px)';
 
-// Altura de item sincronizada con --wheel-item-h del CSS (56px en móvil, 72px en escritorio)
+// Altura de item sincronizada con --wheel-item-h del CSS (48px en móvil, 72px en escritorio)
 function useItemHeight() {
-  const get = () => (window.matchMedia(MOBILE_MQ).matches ? 56 : 72);
+  const get = () => (window.matchMedia(MOBILE_MQ).matches ? 48 : 72);
   const [h, setH] = useState(get);
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);

@@ -239,7 +239,7 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
                   🔒 Ya tienes tus 3 nombres. ¡A mirar cómo sufren los demás!
                 </p>
               ) : (
-                <div className="bid-controls">
+                <div className={`bid-controls${bidding ? '' : ' bid-idle'}`}>
                   {isMobile ? (
                     <DrumPicker
                       min={minBid}

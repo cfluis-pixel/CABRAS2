@@ -787,13 +787,13 @@ textarea:focus {
 
 /* ---------- pantalla de juego en móvil (<640px) ---------- */
 @media (max-width: 640px) {
-  /* 1) ruleta más baja: 56px/item (sincronizado con useItemHeight en Wheel.jsx) */
+  /* 1) ruleta más baja: 48px/item (sincronizado con useItemHeight en Wheel.jsx) */
   :root {
-    --wheel-item-h: 56px;
+    --wheel-item-h: 48px;
   }
 
   .wheel-item {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   /* 2) barra superior: solo código de sala y abandonar */
@@ -806,12 +806,20 @@ textarea:focus {
     justify-content: space-between;
   }
 
-  /* 3) drum picker + botón de pujar a ancho completo */
+  /* 3) drum picker + botón de pujar a ancho completo, barra opaca y compacta */
   .game .bid-controls {
     display: grid;
     grid-template-columns: 104px 1fr;
-    gap: 10px;
+    gap: 8px 10px;
     align-items: center;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(5, 8, 14, 0.97);
+  }
+
+  /* fuera de la fase de pujas la barra no sirve: se oculta y libera pantalla
+     (el botón «Girar ruleta» y el anillo quedan siempre a la vista) */
+  .game .bid-controls.bid-idle {
+    display: none;
   }
 
   /* la barra fija es más alta con el drum picker: más sitio al contenido */
@@ -872,7 +880,7 @@ textarea:focus {
 
   .stage {
     padding: 16px;
-    gap: 14px;
+    gap: 16px;
   }
 
   /* el anillo del timer con aire propio: nunca tapado por topbar ni ruleta */
@@ -885,8 +893,24 @@ textarea:focus {
   .spin-zone {
     position: relative;
     z-index: 2;
-    margin: 10px auto 4px;
+    margin: 12px auto 8px;
     flex: none;
+  }
+
+  .spin-zone {
+    min-height: 112px;
+  }
+
+  .ring-num {
+    font-size: 24px;
+  }
+
+  .bid-status {
+    font-size: 14px;
+  }
+
+  .bid-status p {
+    margin: 2px 0;
   }
 }
 
