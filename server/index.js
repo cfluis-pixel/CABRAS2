@@ -204,12 +204,6 @@ function resolveRound(room) {
   room.round = null;
   room.phase = 'reveal';
   room.turnIdx = (room.turnIdx + 1) % room.turnOrder.length;
-  logEvent(
-    free ? '🎁' : '🔨',
-    room.code,
-    winner.name,
-    `ganó «${room.lastResult.name}» ${free ? 'gratis' : `por ${amount} 🐐`} (le quedan ${winner.goats})`
-  );
   broadcast(room);
 
   const done = [...room.players.values()].every(
@@ -433,7 +427,6 @@ io.on('connection', (socket) => {
     room.round.highestBid = { playerId: player.id, playerName: player.name, amount };
     room.round.endsAt = Date.now() + BID_RESET_MS;
     setRoomTimeout(room, BID_RESET_MS, () => resolveRound(room));
-    logEvent('🐐', room.code, player.name, `pujó ${amount} por «${room.round.name.text}»`, C.yellow);
     cb?.({ ok: true });
     broadcast(room);
   });
