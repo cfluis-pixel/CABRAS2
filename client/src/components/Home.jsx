@@ -1,6 +1,28 @@
 import { useState } from 'react';
 import { socket } from '../socket.js';
 
+// Ticker decorativo de fondo (solo escritorio). Dos mitades idénticas por fila:
+// al trasladar el -50% el bucle es continuo, sin salto visible
+function Ticker() {
+  return (
+    <div className="home-ticker" aria-hidden="true">
+      {[0, 1, 2].map((row) => (
+        <div key={row} className={`ticker-row${row === 1 ? ' reverse' : ''}`}>
+          {[0, 1].map((half) => (
+            <div key={half} className="ticker-half">
+              {Array.from({ length: 8 }, (_, i) => (
+                <span key={i} className="ticker-unit">
+                  CABRAS2 <span className="ticker-goat">🐐</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Código de sala llegado por link de invitación (?sala=XXXXX)
 const invitedCode = (new URLSearchParams(window.location.search).get('sala') || '')
   .toUpperCase()
@@ -39,6 +61,7 @@ export default function Home({ onEnter, showToast }) {
 
   return (
     <div className="screen home">
+      <Ticker />
       <div className="logo-block">
         <div className="logo-goats">🐐🐐</div>
         <h1 className="logo">CABRAS2</h1>

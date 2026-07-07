@@ -314,6 +314,97 @@ textarea:focus {
   font-weight: 700;
 }
 
+/* ---------- ticker decorativo de la Home (solo escritorio) ---------- */
+.home-ticker {
+  display: none;
+}
+
+@media (min-width: 861px) {
+  .screen.home {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* el contenido real por delante del ticker */
+  .screen.home .logo-block,
+  .screen.home .home-card {
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-ticker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 36%;
+    bottom: 0;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  .ticker-row {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: ticker-right 80s linear infinite;
+  }
+
+  .ticker-row.reverse {
+    animation-name: ticker-left;
+    animation-duration: 65s;
+  }
+
+  .ticker-row:last-child {
+    animation-duration: 95s;
+  }
+
+  .ticker-half {
+    display: flex;
+    flex: none;
+  }
+
+  .ticker-unit {
+    font-family: var(--display);
+    font-size: clamp(4rem, 5.5vw, 6rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.05;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    padding-right: 3rem;
+    /* el azul del fondo (#05070d) aclarado ~10% de luminosidad */
+    color: #161d2c;
+  }
+
+  .ticker-goat {
+    filter: grayscale(0.85);
+    opacity: 0.25;
+  }
+
+  @keyframes ticker-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes ticker-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
 /* ---------- selector de modo de ruleta ---------- */
 .mode-row {
   display: flex;
