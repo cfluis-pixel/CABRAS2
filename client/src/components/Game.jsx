@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { socket } from '../socket.js';
 import { playerColor } from '../colors.js';
 import useIsMobile from '../useIsMobile.js';
@@ -120,10 +121,43 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
     p.id === room.lastResult.winnerId &&
     i === p.wonNames.indexOf(room.lastResult.name);
 
+  // En móvil la barra se monta con un portal en <body>: si viviera dentro de la
+  // tarjeta (que tiene backdrop-filter), Safari anclaría el position:fixed a la
+  // tarjeta en vez de al viewport y taparía el temporizador
+  const bidControls = round && !me.locked && (
+    <div className={`bid-controls${bidding ? '' : ' bid-idle'}`}>
+      {isMobile ? (
+        <DrumPicker
+          min={minBid}
+          max={Math.max(minBid, me.goats)}
+          value={amount}
+          onChange={setAmount}
+        />
+      ) : (
+        <input
+          type="number"
+          min={minBid}
+          max={me.goats}
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+      )}
+      <button
+        className="btn btn-primary"
+        disabled={!canBid || amount < minBid || amount > me.goats}
+        onClick={() => bid(amount)}
+      >
+        Pujar {amount} cabras
+      </button>
+      <span className="my-goats">Tienes {me.goats} 🐐</span>
+    </div>
+  );
+
   return (
     <div className="screen game">
       {danger && <div className="panic-vignette" />}
       {flight && <FlyingName flight={flight} />}
+      {isMobile && bidControls && createPortal(bidControls, document.body)}
 
       <header className="topbar">
         <h1 className="logo logo-small hide-sm">CABRAS2 🐐</h1>
@@ -239,32 +273,7 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
                   🔒 Ya tienes tus 3 nombres. ¡A mirar cómo sufren los demás!
                 </p>
               ) : (
-                <div className={`bid-controls${bidding ? '' : ' bid-idle'}`}>
-                  {isMobile ? (
-                    <DrumPicker
-                      min={minBid}
-                      max={Math.max(minBid, me.goats)}
-                      value={amount}
-                      onChange={setAmount}
-                    />
-                  ) : (
-                    <input
-                      type="number"
-                      min={minBid}
-                      max={me.goats}
-                      value={amount}
-                      onChange={(e) => setAmount(Number(e.target.value))}
-                    />
-                  )}
-                  <button
-                    className="btn btn-primary"
-                    disabled={!canBid || amount < minBid || amount > me.goats}
-                    onClick={() => bid(amount)}
-                  >
-                    Pujar {amount} cabras
-                  </button>
-                  <span className="my-goats">Tienes {me.goats} 🐐</span>
-                </div>
+                !isMobile && bidControls
               )}
             </>
           )}
