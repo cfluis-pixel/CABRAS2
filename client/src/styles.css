@@ -731,6 +731,91 @@ textarea:focus {
   }
 }
 
+/* ---------- pantalla de juego en móvil (<640px) ---------- */
+@media (max-width: 640px) {
+  /* 1) ruleta más baja: 56px/item (sincronizado con useItemHeight en Wheel.jsx) */
+  :root {
+    --wheel-item-h: 56px;
+  }
+
+  .wheel-item {
+    font-size: 17px;
+  }
+
+  /* 2) barra superior: solo código de sala y abandonar */
+  .game .hide-sm {
+    display: none;
+  }
+
+  .game .topbar-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* 3) campo de cantidad + botón de pujar a ancho completo */
+  .game .bid-controls {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    gap: 10px;
+  }
+
+  .game .bid-controls input {
+    width: 100%;
+  }
+
+  .game .bid-controls .btn {
+    width: 100%;
+  }
+
+  .game .bid-controls .my-goats {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  /* 4) panel de jugadores compacto */
+  .players-panel {
+    padding: 14px;
+  }
+
+  .players-panel h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .players-panel ul {
+    gap: 6px;
+  }
+
+  .pp-row {
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .pp-name {
+    font-size: 14px;
+  }
+
+  .pp-goats {
+    font-size: 14px;
+  }
+
+  .pp-names {
+    margin-top: 5px;
+    gap: 4px;
+  }
+
+  .won-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .stage {
+    padding: 16px;
+    gap: 14px;
+  }
+}
+
 /* ---------- revelado y vuelo del nombre ---------- */
 .reveal-banner {
   font-family: var(--display);

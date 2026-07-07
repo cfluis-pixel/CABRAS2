@@ -123,11 +123,11 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
       {flight && <FlyingName flight={flight} />}
 
       <header className="topbar">
-        <h1 className="logo logo-small">CABRAS2 🐐</h1>
+        <h1 className="logo logo-small hide-sm">CABRAS2 🐐</h1>
         <div className="topbar-info">
           <span className="pill mono">{room.code}</span>
-          <span className="pill">📜 {room.namesLeft} nombres en juego</span>
-          {round && <span className="pill">Ronda {round.number}</span>}
+          <span className="pill hide-sm">📜 {room.namesLeft} nombres en juego</span>
+          {round && <span className="pill hide-sm">Ronda {round.number}</span>}
           <button className="btn btn-ghost btn-leave" onClick={() => setConfirmLeave(true)}>
             Abandonar partida
           </button>

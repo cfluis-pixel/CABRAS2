@@ -1,10 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const ITEM_H = 72; // debe coincidir con --wheel-item-h en CSS
 const REEL_LEN = 30;
 const TARGET_IDX = REEL_LEN;
+const MOBILE_MQ = '(max-width: 640px)';
+
+// Altura de item sincronizada con --wheel-item-h del CSS (56px en móvil, 72px en escritorio)
+function useItemHeight() {
+  const get = () => (window.matchMedia(MOBILE_MQ).matches ? 56 : 72);
+  const [h, setH] = useState(get);
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const onChange = () => setH(get());
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return h;
+}
 
 export default function Wheel({ pool, targetName, spinning, idle, spinEndsAt, clockOffset, roundNumber }) {
+  const ITEM_H = useItemHeight();
   // En modo manual, mientras nadie gira, aún no hay nombre elegido
   const target = targetName || '· · ·';
 
@@ -102,13 +116,13 @@ export default function Wheel({ pool, targetName, spinning, idle, spinEndsAt, cl
       if (reel) reel.style.filter = '';
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundNumber, spinning]);
+  }, [roundNumber, spinning, ITEM_H]);
 
   // En reposo (pujas / revelado), curvatura estática con el nombre centrado
   useEffect(() => {
     if (!spinning) applyDrum(finalY);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spinning, items]);
+  }, [spinning, items, ITEM_H]);
 
   const state = spinning ? 'is-spinning' : idle ? 'is-idle' : 'is-locked';
   const itemClass = (i) => {
