@@ -1,0 +1,20 @@
+{
+  "name": "cabras2-server",
+  "version": "1.0.0",
+  "description": "Backend de CABRAS2 - juego multijugador de pujas en tiempo real",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.11"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}
