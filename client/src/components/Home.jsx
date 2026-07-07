@@ -10,9 +10,9 @@ function Ticker() {
         <div key={row} className={`ticker-row${row === 1 ? ' reverse' : ''}`}>
           {[0, 1].map((half) => (
             <div key={half} className="ticker-half">
-              {Array.from({ length: 8 }, (_, i) => (
+              {Array.from({ length: 6 }, (_, i) => (
                 <span key={i} className="ticker-unit">
-                  CABRAS2 <span className="ticker-goat">🐐</span>
+                  CABRAS2
                 </span>
               ))}
             </div>
