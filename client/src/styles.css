@@ -314,6 +314,54 @@ textarea:focus {
   font-weight: 700;
 }
 
+/* ---------- selector de modo de ruleta ---------- */
+.mode-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 5px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.mode-btn {
+  border: none;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: var(--accent-dark);
+}
+
+.mode-hint {
+  font-size: 13px;
+}
+
 /* ---------- avatar ---------- */
 .avatar {
   display: inline-flex;
@@ -525,6 +573,21 @@ textarea:focus {
 .wheel.is-locked .wheel-window::after {
   border-top-color: rgba(255, 215, 94, 0.7);
   border-bottom-color: rgba(255, 215, 94, 0.7);
+}
+
+/* ruleta a la espera del giro (modo manual): sin nombre elegido */
+.wheel-item.pending {
+  color: var(--muted);
+  letter-spacing: 6px;
+}
+
+.spin-zone {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 /* ---------- timer (anillo) ---------- */

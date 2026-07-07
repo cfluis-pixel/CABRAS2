@@ -15,6 +15,7 @@ Todo el estado del juego vive en el servidor (autoritativo) y se sincroniza en t
 2. Comparte el código de 5 caracteres (sin caracteres confusos: nunca verás `O`, `0`, `I`, `l` ni `1`).
 3. Los invitados se unen con el código y pulsan **«Estoy listo»**. Cuando todos están listos, el anfitrión pulsa **«Iniciar partida»** (de 1 a 18 jugadores).
 4. En cada ronda la ruleta elige un nombre al azar. Timer inicial de **15 s**; cada puja lo reinicia a **10 s**. Si nadie puja, el jugador de turno se lleva el nombre **gratis**.
+   - El anfitrión puede elegir entre **ruleta automática** (gira sola al inicio de cada ronda) o **ruleta manual** (el jugador de turno debe pulsar «Girar ruleta»). Se configura al crear la partida y puede cambiarse en la sala de espera.
 5. Cuando todos tienen 3 nombres, se abre la votación: se puntúa la **Calidad** y la **Química** (1–10) del trío de cada rival; la nota de cada voto es la media de ambas, y el ranking final se ordena por la nota media recibida.
 
 ---

@@ -85,6 +85,7 @@ function sanitize(room) {
     code: room.code,
     phase: room.phase,
     hostId: room.hostId,
+    wheelMode: room.wheelMode,
     namesTotal: room.names.length,
     namesLeft: room.names.filter((n) => !n.wonBy).length,
     players: [...room.players.values()].map((p) => ({
@@ -99,7 +100,7 @@ function sanitize(room) {
     })),
     round: room.round
       ? {
-          name: room.round.name.text,
+          name: room.round.name ? room.round.name.text : null,
           turnPlayerId: room.round.turnPlayerId,
           pool: room.round.pool,
           spinEndsAt: room.round.spinEndsAt,
@@ -157,18 +158,32 @@ function startRound(room) {
     startVoting(room);
     return;
   }
-  const name = available[crypto.randomInt(available.length)];
   room.roundNumber = (room.roundNumber || 0) + 1;
-  room.phase = 'spin';
+  // El nombre no se elige hasta que la ruleta gira (en manual podría tardar)
   room.round = {
-    name,
+    name: null,
     number: room.roundNumber,
     turnPlayerId: turnPlayer.id,
     pool: available.map((n) => n.text),
-    spinEndsAt: Date.now() + SPIN_MS,
-    endsAt: Date.now() + SPIN_MS + INITIAL_TIMER_MS,
+    spinEndsAt: null,
+    endsAt: null,
     highestBid: null,
   };
+  if (room.wheelMode === 'manual') {
+    // Modo manual: espera a que el jugador de turno emita wheel:spin
+    room.phase = 'waitSpin';
+    broadcast(room);
+    return;
+  }
+  beginSpin(room);
+}
+
+function beginSpin(room) {
+  const available = room.names.filter((n) => !n.wonBy);
+  room.round.name = available[crypto.randomInt(available.length)];
+  room.phase = 'spin';
+  room.round.spinEndsAt = Date.now() + SPIN_MS;
+  room.round.endsAt = Date.now() + SPIN_MS + INITIAL_TIMER_MS;
   broadcast(room);
   setRoomTimeout(room, SPIN_MS, () => {
     room.phase = 'bidding';
@@ -263,7 +278,7 @@ function finishGame(room) {
 // ---------- Sockets ----------
 
 io.on('connection', (socket) => {
-  socket.on('room:create', ({ hostName, names } = {}, cb) => {
+  socket.on('room:create', ({ hostName, names, wheelMode } = {}, cb) => {
     hostName = String(hostName || '').trim().slice(0, 20);
     if (!hostName) return cb?.({ error: 'Introduce tu nombre de jugador' });
 
@@ -285,6 +300,7 @@ io.on('connection', (socket) => {
       code,
       hostId: playerId,
       phase: 'lobby',
+      wheelMode: wheelMode === 'manual' ? 'manual' : 'auto',
       players: new Map(),
       names: list.map((text, i) => ({ id: i + 1, text, wonBy: null })),
       turnOrder: [],
@@ -380,6 +396,31 @@ io.on('connection', (socket) => {
     player.ready = Boolean(ready);
     cb?.({ ok: true });
     broadcast(room);
+  });
+
+  socket.on('room:settings', ({ wheelMode } = {}, cb) => {
+    const { room, player } = getContext(socket);
+    if (!room || !player) return cb?.({ error: 'No estás en ninguna partida' });
+    if (player.id !== room.hostId)
+      return cb?.({ error: 'Solo el anfitrión puede cambiar los ajustes' });
+    if (room.phase !== 'lobby')
+      return cb?.({ error: 'Los ajustes solo se cambian en la sala de espera' });
+    if (wheelMode !== 'auto' && wheelMode !== 'manual')
+      return cb?.({ error: 'Modo de ruleta inválido' });
+    room.wheelMode = wheelMode;
+    cb?.({ ok: true });
+    broadcast(room);
+  });
+
+  socket.on('wheel:spin', (_payload, cb) => {
+    const { room, player } = getContext(socket);
+    if (!room || !player) return cb?.({ error: 'No estás en ninguna partida' });
+    if (room.phase !== 'waitSpin')
+      return cb?.({ error: 'La ruleta no se puede girar ahora' });
+    if (player.id !== room.round.turnPlayerId)
+      return cb?.({ error: 'Solo el jugador de turno puede girar la ruleta' });
+    cb?.({ ok: true });
+    beginSpin(room);
   });
 
   socket.on('game:start', (_payload, cb) => {
@@ -487,6 +528,11 @@ function handleDeparture(room, player, socketId, explicit) {
       return;
     }
     if (room.phase === 'voting') checkVotesComplete(room);
+    // En modo manual, si el jugador de turno se va sin girar, gira el servidor
+    if (room.phase === 'waitSpin' && room.round?.turnPlayerId === player.id) {
+      beginSpin(room);
+      return;
+    }
   }
   broadcast(room);
 }

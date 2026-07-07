@@ -11,6 +11,7 @@ export default function Home({ onEnter, showToast }) {
   const [name, setName] = useState('');
   const [code, setCode] = useState(invitedCode);
   const [namesText, setNamesText] = useState('');
+  const [wheelMode, setWheelMode] = useState('auto');
   const [busy, setBusy] = useState(false);
 
   const namesList = namesText
@@ -20,7 +21,7 @@ export default function Home({ onEnter, showToast }) {
 
   const create = () => {
     setBusy(true);
-    socket.emit('room:create', { hostName: name, names: namesText }, (res) => {
+    socket.emit('room:create', { hostName: name, names: namesText, wheelMode }, (res) => {
       setBusy(false);
       if (res?.error) return showToast(res.error);
       onEnter(res);
@@ -110,6 +111,23 @@ export default function Home({ onEnter, showToast }) {
               Cada jugador ganará exactamente 3 nombres: necesitas al menos 3 × nº de
               jugadores.
             </p>
+            <div className="mode-row">
+              <span className="mode-label">Ruleta</span>
+              <div className="mode-toggle">
+                <button
+                  className={wheelMode === 'auto' ? 'mode-btn active' : 'mode-btn'}
+                  onClick={() => setWheelMode('auto')}
+                >
+                  Automática
+                </button>
+                <button
+                  className={wheelMode === 'manual' ? 'mode-btn active' : 'mode-btn'}
+                  onClick={() => setWheelMode('manual')}
+                >
+                  Manual
+                </button>
+              </div>
+            </div>
             <button
               className="btn btn-primary btn-big"
               disabled={busy || !name.trim() || namesList.length < 3 || namesList.length > 100}

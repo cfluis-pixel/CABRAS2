@@ -40,6 +40,13 @@ export default function Lobby({ room, me, showToast, onExit }) {
     });
   };
 
+  const setWheelMode = (wheelMode) => {
+    if (wheelMode === room.wheelMode) return;
+    socket.emit('room:settings', { wheelMode }, (res) => {
+      if (res?.error) showToast(res.error);
+    });
+  };
+
   const copyInvite = async () => {
     const url = `${window.location.origin}${window.location.pathname}?sala=${room.code}`;
     const ok = await copyText(url);
@@ -91,6 +98,28 @@ export default function Lobby({ room, me, showToast, onExit }) {
 
         {isHost ? (
           <>
+            <div className="mode-row">
+              <span className="mode-label">Ruleta</span>
+              <div className="mode-toggle">
+                <button
+                  className={room.wheelMode === 'auto' ? 'mode-btn active' : 'mode-btn'}
+                  onClick={() => setWheelMode('auto')}
+                >
+                  Automática
+                </button>
+                <button
+                  className={room.wheelMode === 'manual' ? 'mode-btn active' : 'mode-btn'}
+                  onClick={() => setWheelMode('manual')}
+                >
+                  Manual
+                </button>
+              </div>
+              <span className="hint mode-hint">
+                {room.wheelMode === 'auto'
+                  ? 'La ruleta gira sola al inicio de cada ronda'
+                  : 'El jugador de turno debe pulsar «Girar ruleta»'}
+              </span>
+            </div>
             <button className="btn btn-primary btn-big" disabled={!canStart} onClick={start}>
               🚀 Iniciar partida
             </button>

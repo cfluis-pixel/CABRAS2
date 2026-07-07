@@ -4,21 +4,24 @@ const ITEM_H = 72; // debe coincidir con --wheel-item-h en CSS
 const REEL_LEN = 30;
 const TARGET_IDX = REEL_LEN;
 
-export default function Wheel({ pool, targetName, spinning, spinEndsAt, clockOffset, roundNumber }) {
+export default function Wheel({ pool, targetName, spinning, idle, spinEndsAt, clockOffset, roundNumber }) {
+  // En modo manual, mientras nadie gira, aún no hay nombre elegido
+  const target = targetName || '· · ·';
+
   // Tira de nombres: relleno + nombre elegido por el servidor + cola para que
   // el tambor no se vea vacío por debajo al frenar
   const items = useMemo(() => {
-    const src = pool && pool.length ? [...pool].sort(() => Math.random() - 0.5) : [targetName];
+    const src = pool && pool.length ? [...pool].sort(() => Math.random() - 0.5) : [target];
     const reel = [];
     let i = 0;
     while (reel.length < REEL_LEN) {
       reel.push(src[i % src.length]);
       i++;
     }
-    reel.push(targetName, src[0], src[1 % src.length]);
+    reel.push(target, src[0], src[1 % src.length]);
     return reel;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundNumber]);
+  }, [roundNumber, targetName]);
 
   const finalY = -(TARGET_IDX - 1) * ITEM_H;
   const reelRef = useRef(null);
@@ -107,8 +110,14 @@ export default function Wheel({ pool, targetName, spinning, spinEndsAt, clockOff
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinning, items]);
 
+  const state = spinning ? 'is-spinning' : idle ? 'is-idle' : 'is-locked';
+  const itemClass = (i) => {
+    if (i !== TARGET_IDX || spinning) return '';
+    return idle ? 'pending' : 'current';
+  };
+
   return (
-    <div className={`wheel ${spinning ? 'is-spinning' : 'is-locked'} ${flash ? 'flash' : ''}`}>
+    <div className={`wheel ${state} ${flash ? 'flash' : ''}`}>
       <div className="wheel-window">
         <div
           ref={reelRef}
@@ -121,10 +130,7 @@ export default function Wheel({ pool, targetName, spinning, spinEndsAt, clockOff
           }}
         >
           {items.map((name, i) => (
-            <div
-              key={i}
-              className={`wheel-item ${!spinning && i === TARGET_IDX ? 'current' : ''}`}
-            >
+            <div key={i} className={`wheel-item ${itemClass(i)}`}>
               {name}
             </div>
           ))}

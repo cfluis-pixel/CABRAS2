@@ -43,6 +43,7 @@ function FlyingName({ flight }) {
 export default function Game({ room, me, showToast, clockOffset, onExit }) {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const now = useNow() + clockOffset.current;
+  const waiting = room.phase === 'waitSpin';
   const spinning = room.phase === 'spin';
   const bidding = room.phase === 'bidding';
   const reveal = room.phase === 'reveal';
@@ -64,12 +65,19 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
   const warn = bidding && remaining <= 6000;
 
   const turnPlayer = room.players.find((p) => p.id === round?.turnPlayerId);
+  const isMyTurn = round?.turnPlayerId === me.id;
   const highestIdx = highest ? room.players.findIndex((p) => p.id === highest.playerId) : -1;
   const canBid =
     bidding && !me.locked && me.goats >= minBid && highest?.playerId !== me.id;
 
   const bid = (n) => {
     socket.emit('bid', { amount: n }, (res) => {
+      if (res?.error) showToast(res.error);
+    });
+  };
+
+  const spin = () => {
+    socket.emit('wheel:spin', {}, (res) => {
       if (res?.error) showToast(res.error);
     });
   };
@@ -148,18 +156,40 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
           {round && (
             <>
               <p className="stage-label">
-                {spinning ? 'Girando la ruleta…' : reveal ? 'Adjudicado' : 'Se subasta:'}
+                {waiting
+                  ? 'A la espera del giro…'
+                  : spinning
+                    ? 'Girando la ruleta…'
+                    : reveal
+                      ? 'Adjudicado'
+                      : 'Se subasta:'}
               </p>
               <Wheel
                 pool={round.pool}
                 targetName={round.name}
                 spinning={spinning}
+                idle={waiting}
                 spinEndsAt={round.spinEndsAt}
                 clockOffset={clockOffset}
                 roundNumber={round.number}
               />
 
-              {reveal && room.lastResult ? (
+              {waiting ? (
+                <div className="spin-zone">
+                  <button
+                    className="btn btn-primary btn-big"
+                    disabled={!isMyTurn}
+                    onClick={spin}
+                  >
+                    Girar ruleta
+                  </button>
+                  <p className="hint">
+                    {isMyTurn
+                      ? 'Es tu turno: dale al botón'
+                      : `Esperando a que ${turnPlayer?.name} gire la ruleta…`}
+                  </p>
+                </div>
+              ) : reveal && room.lastResult ? (
                 <div className="reveal-banner">
                   <b>{room.lastResult.winnerName}</b> se lleva «{room.lastResult.name}»{' '}
                   {room.lastResult.free ? (
@@ -181,7 +211,7 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
                 />
               )}
 
-              {!reveal && (
+              {!reveal && !waiting && (
                 <div className="bid-status">
                   {highest ? (
                     <p>
