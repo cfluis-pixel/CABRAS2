@@ -440,10 +440,12 @@ io.on('connection', (socket) => {
     const others = [...room.players.keys()].filter((id) => id !== player.id);
     const clean = {};
     for (const id of others) {
-      const s = Math.round(Number(scores?.[id]));
-      if (!Number.isFinite(s) || s < 0 || s > 10)
-        return cb?.({ error: 'Puntúa a todos los jugadores del 0 al 10' });
-      clean[id] = s;
+      const calidad = Math.round(Number(scores?.[id]?.calidad));
+      const quimica = Math.round(Number(scores?.[id]?.quimica));
+      if (![calidad, quimica].every((s) => Number.isFinite(s) && s >= 1 && s <= 10))
+        return cb?.({ error: 'Puntúa Calidad y Química de todos los jugadores del 1 al 10' });
+      // La nota de este voto es la media de las dos puntuaciones
+      clean[id] = (calidad + quimica) / 2;
     }
     room.votes[player.id] = clean;
     cb?.({ ok: true });

@@ -1,15 +1,24 @@
 import { useState } from 'react';
 import { socket } from '../socket.js';
 
+const CRITERIA = [
+  { key: 'calidad', label: '✨ Calidad' },
+  { key: 'quimica', label: '⚗️ Química' },
+];
+
 export default function Voting({ room, me, showToast }) {
   const others = room.players.filter((p) => p.id !== me.id);
-  const [scores, setScores] = useState({});
+  const [scores, setScores] = useState(() =>
+    Object.fromEntries(others.map((p) => [p.id, { calidad: 5, quimica: 5 }]))
+  );
   const [sent, setSent] = useState(room.voted.includes(me.id));
 
   const alreadyVoted = sent || room.voted.includes(me.id);
-  const complete = others.every((p) => scores[p.id] != null);
   const votedCount = room.voted.length;
   const connectedCount = room.players.filter((p) => p.connected).length;
+
+  const setScore = (playerId, key, value) =>
+    setScores((s) => ({ ...s, [playerId]: { ...s[playerId], [key]: value } }));
 
   const submit = () => {
     socket.emit('vote', { scores }, (res) => {
@@ -28,8 +37,9 @@ export default function Voting({ room, me, showToast }) {
       <div className="card voting-card">
         <h2>🗳️ ¡Hora de juzgar!</h2>
         <p className="hint">
-          Puntúa del 0 al 10 el trío de nombres de cada jugador. No puedes puntuarte a
-          ti mismo.
+          Puntúa del 1 al 10 la <b>Calidad</b> y la <b>Química</b> del trío de nombres
+          de cada jugador. Su nota será la media de ambas. No puedes puntuarte a ti
+          mismo.
         </p>
 
         <div className="vote-mine">
@@ -57,16 +67,21 @@ export default function Voting({ room, me, showToast }) {
                     ))}
                   </div>
                 </div>
-                <div className="score-buttons">
-                  {Array.from({ length: 11 }, (_, i) => (
-                    <button
-                      key={i}
-                      disabled={alreadyVoted}
-                      className={`score-btn ${scores[p.id] === i ? 'picked' : ''}`}
-                      onClick={() => setScores((s) => ({ ...s, [p.id]: i }))}
-                    >
-                      {i}
-                    </button>
+                <div className="sliders">
+                  {CRITERIA.map(({ key, label }) => (
+                    <label key={key} className="slider-row">
+                      <span className="slider-label">{label}</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={10}
+                        step={1}
+                        disabled={alreadyVoted}
+                        value={scores[p.id][key]}
+                        onChange={(e) => setScore(p.id, key, Number(e.target.value))}
+                      />
+                      <span className="slider-value">{scores[p.id][key]}</span>
+                    </label>
                   ))}
                 </div>
               </li>
@@ -79,12 +94,8 @@ export default function Voting({ room, me, showToast }) {
             ✅ Voto enviado. Esperando al resto… ({votedCount}/{connectedCount})
           </p>
         ) : (
-          <button
-            className="btn btn-primary btn-big"
-            disabled={!complete}
-            onClick={submit}
-          >
-            Enviar puntuaciones ({Object.keys(scores).length}/{others.length})
+          <button className="btn btn-primary btn-big" onClick={submit}>
+            Enviar puntuaciones
           </button>
         )}
       </div>
