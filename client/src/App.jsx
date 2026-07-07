@@ -94,7 +94,13 @@ export default function App() {
   } else {
     phaseKey = 'game';
     screen = (
-      <Game room={room} me={me} showToast={showToast} clockOffset={clockOffset} />
+      <Game
+        room={room}
+        me={me}
+        showToast={showToast}
+        clockOffset={clockOffset}
+        onExit={handleExit}
+      />
     );
   }
 

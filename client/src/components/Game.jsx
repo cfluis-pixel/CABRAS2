@@ -40,7 +40,8 @@ function FlyingName({ flight }) {
   );
 }
 
-export default function Game({ room, me, showToast, clockOffset }) {
+export default function Game({ room, me, showToast, clockOffset, onExit }) {
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const now = useNow() + clockOffset.current;
   const spinning = room.phase === 'spin';
   const bidding = room.phase === 'bidding';
@@ -119,8 +120,28 @@ export default function Game({ room, me, showToast, clockOffset }) {
           <span className="pill mono">{room.code}</span>
           <span className="pill">📜 {room.namesLeft} nombres en juego</span>
           {round && <span className="pill">Ronda {round.number}</span>}
+          <button className="btn btn-ghost btn-leave" onClick={() => setConfirmLeave(true)}>
+            Abandonar partida
+          </button>
         </div>
       </header>
+
+      {confirmLeave && (
+        <div className="modal-overlay" onClick={() => setConfirmLeave(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h3>¿Seguro que quieres abandonar?</h3>
+            <p className="hint">Saldrás de la partida y volverás a la pantalla de inicio.</p>
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={() => setConfirmLeave(false)}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={onExit}>
+                Sí, abandonar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="game-grid">
         <section className="card stage" ref={stageRef}>
@@ -186,29 +207,20 @@ export default function Game({ room, me, showToast, clockOffset }) {
                 </p>
               ) : (
                 <div className="bid-controls">
+                  <input
+                    type="number"
+                    min={minBid}
+                    max={me.goats}
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                  />
                   <button
                     className="btn btn-primary"
-                    disabled={!canBid}
-                    onClick={() => bid(minBid)}
+                    disabled={!canBid || amount < minBid || amount > me.goats}
+                    onClick={() => bid(amount)}
                   >
-                    Pujar {minBid} 🐐
+                    Pujar {amount} cabras
                   </button>
-                  <div className="bid-custom">
-                    <input
-                      type="number"
-                      min={minBid}
-                      max={me.goats}
-                      value={amount}
-                      onChange={(e) => setAmount(Number(e.target.value))}
-                    />
-                    <button
-                      className="btn btn-secondary"
-                      disabled={!canBid || amount < minBid || amount > me.goats}
-                      onClick={() => bid(amount)}
-                    >
-                      Pujar
-                    </button>
-                  </div>
                   <span className="my-goats">Tienes {me.goats} 🐐</span>
                 </div>
               )}

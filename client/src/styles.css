@@ -262,6 +262,17 @@ textarea:focus {
   color: var(--text);
 }
 
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-leave {
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .btn-big {
   padding: 16px 24px;
   font-size: 18px;
@@ -506,8 +517,14 @@ textarea:focus {
 }
 
 .wheel-item.current {
-  color: var(--accent);
-  text-shadow: 0 0 22px rgba(180, 249, 39, 0.55);
+  color: #ffd75e;
+  text-shadow: 0 0 22px rgba(255, 203, 74, 0.6), 0 0 6px rgba(255, 215, 94, 0.4);
+}
+
+/* con el nombre fijado, la banda central acompaña al dorado */
+.wheel.is-locked .wheel-window::after {
+  border-top-color: rgba(255, 215, 94, 0.7);
+  border-bottom-color: rgba(255, 215, 94, 0.7);
 }
 
 /* ---------- timer (anillo) ---------- */
@@ -619,12 +636,7 @@ textarea:focus {
   justify-content: center;
 }
 
-.bid-custom {
-  display: flex;
-  gap: 8px;
-}
-
-.bid-custom input {
+.bid-controls input {
   width: 90px;
   text-align: center;
   font-size: 18px;
@@ -1012,6 +1024,52 @@ textarea:focus {
   height: 100%;
   pointer-events: none;
   z-index: 60;
+}
+
+/* ---------- modal de confirmación ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 5, 10, 0.7);
+  backdrop-filter: blur(6px);
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal-card {
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 26px;
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: pop-in 0.22s cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+
+.modal-card h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 
 /* ---------- toast / misc ---------- */
