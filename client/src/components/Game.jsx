@@ -1,9 +1,11 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { socket } from '../socket.js';
 import { playerColor } from '../colors.js';
+import useIsMobile from '../useIsMobile.js';
 import Wheel from './Wheel.jsx';
 import Avatar from './Avatar.jsx';
 import TimerRing from './TimerRing.jsx';
+import DrumPicker from './DrumPicker.jsx';
 import { GoatCounter } from './Counters.jsx';
 
 function useNow(intervalMs = 100) {
@@ -42,6 +44,7 @@ function FlyingName({ flight }) {
 
 export default function Game({ room, me, showToast, clockOffset, onExit }) {
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const isMobile = useIsMobile();
   const now = useNow() + clockOffset.current;
   const waiting = room.phase === 'waitSpin';
   const spinning = room.phase === 'spin';
@@ -237,13 +240,22 @@ export default function Game({ room, me, showToast, clockOffset, onExit }) {
                 </p>
               ) : (
                 <div className="bid-controls">
-                  <input
-                    type="number"
-                    min={minBid}
-                    max={me.goats}
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                  />
+                  {isMobile ? (
+                    <DrumPicker
+                      min={minBid}
+                      max={Math.max(minBid, me.goats)}
+                      value={amount}
+                      onChange={setAmount}
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      min={minBid}
+                      max={me.goats}
+                      value={amount}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                    />
+                  )}
                   <button
                     className="btn btn-primary"
                     disabled={!canBid || amount < minBid || amount > me.goats}

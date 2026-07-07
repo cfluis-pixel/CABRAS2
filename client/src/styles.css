@@ -706,6 +706,60 @@ textarea:focus {
   font-weight: 700;
 }
 
+/* ---------- drum picker (selector de puja en móvil) ---------- */
+.drum-picker {
+  --drum-item-h: 40px;
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+.drum-list {
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding: var(--drum-item-h) 0;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(transparent, black 28%, black 72%, transparent);
+  mask-image: linear-gradient(transparent, black 28%, black 72%, transparent);
+}
+
+.drum-list::-webkit-scrollbar {
+  display: none;
+}
+
+.drum-item {
+  height: var(--drum-item-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  will-change: transform, opacity;
+}
+
+.drum-item.selected {
+  color: var(--accent);
+}
+
+.drum-band {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: var(--drum-item-h);
+  height: var(--drum-item-h);
+  border-top: 1px solid rgba(180, 249, 39, 0.35);
+  border-bottom: 1px solid rgba(180, 249, 39, 0.35);
+  pointer-events: none;
+}
+
 .my-goats {
   color: var(--muted);
   font-weight: 700;
@@ -752,11 +806,17 @@ textarea:focus {
     justify-content: space-between;
   }
 
-  /* 3) campo de cantidad + botón de pujar a ancho completo */
+  /* 3) drum picker + botón de pujar a ancho completo */
   .game .bid-controls {
     display: grid;
     grid-template-columns: 104px 1fr;
     gap: 10px;
+    align-items: center;
+  }
+
+  /* la barra fija es más alta con el drum picker: más sitio al contenido */
+  .screen.game {
+    padding-bottom: 200px;
   }
 
   .game .bid-controls input {
@@ -813,6 +873,20 @@ textarea:focus {
   .stage {
     padding: 16px;
     gap: 14px;
+  }
+
+  /* el anillo del timer con aire propio: nunca tapado por topbar ni ruleta */
+  .game .topbar {
+    position: relative;
+    z-index: 5;
+  }
+
+  .timer-ring,
+  .spin-zone {
+    position: relative;
+    z-index: 2;
+    margin: 10px auto 4px;
+    flex: none;
   }
 }
 
