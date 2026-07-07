@@ -36,6 +36,31 @@ const io = new Server(server, {
 /** @type {Map<string, object>} código de sala -> estado de la sala */
 const rooms = new Map();
 
+// ---------- Logs ----------
+
+const C = {
+  reset: '\x1b[0m',
+  dim: '\x1b[2m',
+  bold: '\x1b[1m',
+  green: '\x1b[32m',
+  cyan: '\x1b[36m',
+  yellow: '\x1b[33m',
+  magenta: '\x1b[35m',
+  red: '\x1b[31m',
+};
+
+function logEvent(emoji, code, player, message, color = C.cyan) {
+  const time = new Date().toLocaleTimeString('es-ES', { hour12: false });
+  const parts = [
+    `${C.dim}${time}${C.reset}`,
+    emoji,
+    code ? `${C.magenta}[${code}]${C.reset}` : null,
+    player ? `${C.bold}${player}${C.reset}` : null,
+    `${color}${message}${C.reset}`,
+  ].filter(Boolean);
+  console.log(parts.join(' '));
+}
+
 function makeCode() {
   let code;
   do {
@@ -179,6 +204,12 @@ function resolveRound(room) {
   room.round = null;
   room.phase = 'reveal';
   room.turnIdx = (room.turnIdx + 1) % room.turnOrder.length;
+  logEvent(
+    free ? '🎁' : '🔨',
+    room.code,
+    winner.name,
+    `ganó «${room.lastResult.name}» ${free ? 'gratis' : `por ${amount} 🐐`} (le quedan ${winner.goats})`
+  );
   broadcast(room);
 
   const done = [...room.players.values()].every(
@@ -228,6 +259,10 @@ function finishGame(room) {
     }))
     .sort((a, b) => (b.average ?? -1) - (a.average ?? -1));
   room.phase = 'results';
+  const podium = room.results
+    .map((r, i) => `${i + 1}º ${r.name} (${r.average != null ? r.average.toFixed(2) : '—'})`)
+    .join(' · ');
+  logEvent('🏆', room.code, null, `partida terminada — ${podium}`, C.green);
   broadcast(room);
 }
 
@@ -279,6 +314,7 @@ io.on('connection', (socket) => {
     rooms.set(code, room);
     socket.data = { code, playerId };
     socket.join(code);
+    logEvent('🆕', code, hostName, `creó la sala con ${list.length} nombres`, C.green);
     cb?.({ ok: true, code, playerId });
     broadcast(room);
   });
@@ -302,6 +338,7 @@ io.on('connection', (socket) => {
       existing.socketId = socket.id;
       socket.data = { code, playerId: existing.id };
       socket.join(code);
+      logEvent('🔁', code, existing.name, 'se reconectó a la partida', C.yellow);
       cb?.({ ok: true, code, playerId: existing.id });
       broadcast(room);
       return;
@@ -324,6 +361,7 @@ io.on('connection', (socket) => {
     });
     socket.data = { code, playerId };
     socket.join(code);
+    logEvent('🚪', code, name, `se unió a la sala (${room.players.size} jugadores)`, C.green);
     cb?.({ ok: true, code, playerId });
     broadcast(room);
   });
@@ -336,6 +374,7 @@ io.on('connection', (socket) => {
     player.socketId = socket.id;
     socket.data = { code: room.code, playerId };
     socket.join(room.code);
+    logEvent('🔁', room.code, player.name, 'se reconectó a la partida', C.yellow);
     cb?.({ ok: true, code: room.code, playerId });
     broadcast(room);
   });
@@ -367,6 +406,7 @@ io.on('connection', (socket) => {
 
     room.turnOrder = shuffle(players.map((p) => p.id));
     room.turnIdx = 0;
+    logEvent('🚀', room.code, player.name, `inició la partida con ${players.length} jugadores`, C.green);
     cb?.({ ok: true });
     startRound(room);
   });
@@ -393,6 +433,7 @@ io.on('connection', (socket) => {
     room.round.highestBid = { playerId: player.id, playerName: player.name, amount };
     room.round.endsAt = Date.now() + BID_RESET_MS;
     setRoomTimeout(room, BID_RESET_MS, () => resolveRound(room));
+    logEvent('🐐', room.code, player.name, `pujó ${amount} por «${room.round.name.text}»`, C.yellow);
     cb?.({ ok: true });
     broadcast(room);
   });
@@ -435,15 +476,18 @@ io.on('connection', (socket) => {
 
 function handleDeparture(room, player, socketId, explicit) {
   player.connected = false;
+  logEvent('👋', room.code, player.name, explicit ? 'salió de la partida' : 'se desconectó', C.red);
   if (room.phase === 'lobby') {
     if (player.id === room.hostId) {
       io.to(room.code).emit('room:closed', { reason: 'El anfitrión ha cerrado la partida' });
+      logEvent('💥', room.code, null, 'sala cerrada (el anfitrión se fue del lobby)', C.red);
       destroyRoom(room);
       return;
     }
     room.players.delete(player.id);
   } else {
     if ([...room.players.values()].every((p) => !p.connected)) {
+      logEvent('💥', room.code, null, 'sala eliminada (todos desconectados)', C.red);
       destroyRoom(room);
       return;
     }
