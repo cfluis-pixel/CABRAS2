@@ -78,15 +78,21 @@ export default function App() {
   const me = room?.players.find((p) => p.id === playerId) || null;
 
   let screen;
+  let phaseKey;
   if (!room || !me) {
+    phaseKey = 'home';
     screen = <Home onEnter={handleEnter} showToast={showToast} />;
   } else if (room.phase === 'lobby') {
+    phaseKey = 'lobby';
     screen = <Lobby room={room} me={me} showToast={showToast} onExit={handleExit} />;
   } else if (room.phase === 'voting') {
+    phaseKey = 'voting';
     screen = <Voting room={room} me={me} showToast={showToast} />;
   } else if (room.phase === 'results') {
+    phaseKey = 'results';
     screen = <Results room={room} me={me} onExit={handleExit} />;
   } else {
+    phaseKey = 'game';
     screen = (
       <Game room={room} me={me} showToast={showToast} clockOffset={clockOffset} />
     );
@@ -95,7 +101,10 @@ export default function App() {
   return (
     <div className="app">
       {!connected && <div className="conn-banner">🔌 Reconectando con el servidor…</div>}
-      {screen}
+      {/* key por fase: cada pantalla entra con crossfade + deslizamiento */}
+      <div className="phase-wrap" key={phaseKey}>
+        {screen}
+      </div>
       {toast && <div className={`toast toast-${toast.kind}`}>{toast.msg}</div>}
     </div>
   );

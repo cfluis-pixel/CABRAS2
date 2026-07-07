@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { socket } from '../socket.js';
+import Avatar from './Avatar.jsx';
 
 async function copyText(text) {
   try {
@@ -73,9 +74,10 @@ export default function Lobby({ room, me, showToast, onExit }) {
         </div>
 
         <ul className="player-list">
-          {room.players.map((p) => (
+          {room.players.map((p, idx) => (
             <li key={p.id} className="player-row">
               <span className="player-name">
+                <Avatar name={p.name} index={idx} size={32} />
                 {p.isHost && <span title="Anfitrión">👑 </span>}
                 {p.name}
                 {p.id === me.id && <span className="you"> (tú)</span>}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { socket } from '../socket.js';
+import Avatar from './Avatar.jsx';
 
 const CRITERIA = [
   { key: 'calidad', label: '✨ Calidad' },
@@ -58,7 +59,14 @@ export default function Voting({ room, me, showToast }) {
             {others.map((p) => (
               <li key={p.id} className="vote-row">
                 <div className="vote-who">
-                  <b>{p.name}</b>
+                  <b className="vote-who-name">
+                    <Avatar
+                      name={p.name}
+                      index={room.players.findIndex((x) => x.id === p.id)}
+                      size={30}
+                    />
+                    {p.name}
+                  </b>
                   <div className="vote-names">
                     {p.wonNames.map((n) => (
                       <span key={n} className="won-chip filled">
