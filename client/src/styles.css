@@ -307,6 +307,11 @@ textarea:focus {
   flex-wrap: wrap;
 }
 
+.invite-btn {
+  align-self: center;
+  font-size: 15px;
+}
+
 .player-list {
   list-style: none;
   margin: 0;
@@ -472,7 +477,28 @@ textarea:focus {
 
 .timer.danger .timer-num {
   color: var(--danger);
-  animation: pulse 0.5s ease-in-out infinite;
+  text-shadow: 0 0 24px rgba(255, 84, 112, 0.8);
+  animation: timer-panic 0.5s ease-in-out infinite;
+}
+
+@keyframes timer-panic {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+.timer.danger .timer-fill {
+  animation: bar-flash 0.5s ease-in-out infinite;
+}
+
+@keyframes bar-flash {
+  50% {
+    opacity: 0.55;
+  }
 }
 
 .timer-bar {

@@ -1,6 +1,26 @@
+import { useState } from 'react';
 import { socket } from '../socket.js';
 
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // Fallback para contextos no seguros (http en red local)
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  }
+}
+
 export default function Lobby({ room, me, showToast, onExit }) {
+  const [copied, setCopied] = useState(false);
   const isHost = me.id === room.hostId;
   const allReady = room.players.every((p) => p.ready);
   const needed = room.players.length * 3;
@@ -19,6 +39,15 @@ export default function Lobby({ room, me, showToast, onExit }) {
     });
   };
 
+  const copyInvite = async () => {
+    const url = `${window.location.origin}${window.location.pathname}?sala=${room.code}`;
+    const ok = await copyText(url);
+    if (!ok) return showToast('No se pudo copiar el link');
+    setCopied(true);
+    showToast('Link de invitación copiado 📋', 'info');
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   return (
     <div className="screen">
       <header className="topbar">
@@ -31,6 +60,9 @@ export default function Lobby({ room, me, showToast, onExit }) {
       <div className="card lobby-card">
         <p className="code-label">Código de partida — compártelo con tus amigos</p>
         <div className="room-code">{room.code}</div>
+        <button className="btn btn-ghost invite-btn" onClick={copyInvite}>
+          {copied ? '✅ ¡Copiado!' : '🔗 Copiar link de invitación'}
+        </button>
 
         <div className="lobby-meta">
           <span className="pill">👥 {room.players.length}/18 jugadores</span>

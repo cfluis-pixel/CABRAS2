@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { socket } from '../socket.js';
 
+// Código de sala llegado por link de invitación (?sala=XXXXX)
+const invitedCode = (new URLSearchParams(window.location.search).get('sala') || '')
+  .toUpperCase()
+  .slice(0, 5);
+
 export default function Home({ onEnter, showToast }) {
   const [tab, setTab] = useState('join');
   const [name, setName] = useState('');
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(invitedCode);
   const [namesText, setNamesText] = useState('');
   const [busy, setBusy] = useState(false);
 
