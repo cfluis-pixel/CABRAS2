@@ -332,16 +332,15 @@ textarea:focus {
     z-index: 1;
   }
 
+  /* fijado al viewport: cubre todo el ancho de la pantalla, no solo la
+     columna centrada de 1100px de la Home */
   .home-ticker {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 100vh;
+    position: fixed;
+    inset: 0;
     z-index: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     pointer-events: none;
     user-select: none;
     overflow: hidden;
@@ -370,13 +369,13 @@ textarea:focus {
 
   .ticker-unit {
     font-family: var(--display);
-    font-size: clamp(10rem, 13vw, 14rem);
+    font-size: clamp(12rem, 17vw, 19rem);
     font-weight: 700;
     text-transform: uppercase;
-    line-height: 1;
+    line-height: 0.92;
     letter-spacing: 2px;
     white-space: nowrap;
-    padding-right: 4rem;
+    padding-right: 5rem;
     /* el azul del fondo (#05070d) aclarado ~10% de luminosidad */
     color: #161d2c;
   }
